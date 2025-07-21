@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjustable Timer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Adjustable Timer</h1>
+        <div class="timer-display">
+            <span id="minutes">01</span>:<span id="seconds">00</span>
+        </div>
+        <div class="timer-controls-buttons">
+            <button id="pause-button">Pause</button>
+        </div>
+        <audio id="alarm-sound" preload="auto">
+            <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <audio id="spacebar-sound" preload="auto">
+            <source src="https://assets.mixkit.co/active_storage/sfx/2053/2053-preview.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <div class="timer-controls">
+            <div class="control-group">
+                <label for="timer-minutes">Minutes:</label>
+                <input type="number" id="timer-minutes" min="0" max="60" value="1">
+            </div>
+            <div class="control-group">
+                <label for="timer-seconds">Seconds:</label>
+                <input type="number" id="timer-seconds" min="0" max="59" value="0">
+            </div>
+            <button id="apply-timer">Apply</button>
+        </div>
+        <div class="sound-control">
+            <div class="control-group">
+                <label for="sound-toggle">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    Enable alarm sound
+                </label>
+            </div>
+            <div class="control-group custom-sound">
+                <label for="custom-sound">Custom alarm sound:</label>
+                <input type="file" id="custom-sound" accept="audio/*">
+            </div>
+            <div class="control-group custom-sound">
+                <label for="custom-spacebar-sound">Custom spacebar sound:</label>
+                <input type="file" id="custom-spacebar-sound" accept="audio/*">
+            </div>
+        </div>
+        <div class="instructions">
+            <p>Press <kbd>Spacebar</kbd> to reset timer</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

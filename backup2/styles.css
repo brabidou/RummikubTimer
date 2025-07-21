@@ -1,0 +1,193 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    min-width: 320px;
+}
+
+.alarm-name-display {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.timer-display {
+    font-size: 5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 1.5rem 0;
+}
+
+.timer-controls-buttons {
+    margin: 1rem 0;
+}
+
+#pause-button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#pause-button:hover {
+    background-color: #c0392b;
+}
+
+#pause-button.resume {
+    background-color: #2ecc71;
+}
+
+#pause-button.resume:hover {
+    background-color: #27ae60;
+}
+
+.timer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.control-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="number"] {
+    width: 60px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+.sound-control {
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.custom-sound {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.custom-sound input[type="file"] {
+    width: 100%;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.alarm-sounds-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.alarm-sound-item {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    align-items: center;
+}
+
+.alarm-sound-item input[type="file"] {
+    flex: 1;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.alarm-sound-item input[type="text"] {
+    width: 150px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.remove-sound {
+    background-color: #e74c3c;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.remove-sound:hover {
+    background-color: #c0392b;
+}
+
+#add-alarm-sound {
+    background-color: #3498db;
+    margin-top: 0.5rem;
+    align-self: flex-start;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.instructions {
+    margin-top: 1.5rem;
+    color: #7f8c8d;
+    text-align: center;
+}
+
+kbd {
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+    color: #333;
+    display: inline-block;
+    font-size: 0.9rem;
+    padding: 0.1rem 0.5rem;
+}
