@@ -391,14 +391,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Prevent default behavior
         event.preventDefault();
         
-        // Play sound and reset timer
-        playSpacebarSound();
-        resetTimer();
-        
         // Advance to the next alarm sound if we have multiple alarms
-        if (alarmSounds.length > 0) {
+        if (alarmNames.length > 0) {
             // Move to the next alarm sound
-            currentAlarmIndex = (currentAlarmIndex + 1) % alarmSounds.length;
+            currentAlarmIndex = (currentAlarmIndex + 1) % alarmNames.length;
             
             // Update the alarm name display and document title
             if (alarmNames[currentAlarmIndex]) {
@@ -410,6 +406,36 @@ document.addEventListener('DOMContentLoaded', () => {
             // If no custom alarms, set to default
             updateAlarmNameDisplay('Timer');
         }
+        
+        // Play spacebar sound first
+        playSpacebarSound();
+        
+        // Set a short delay before playing the alarm sound
+        setTimeout(() => {
+            // Play the current alarm sound
+            if (soundToggle.checked) {
+                if (alarmNames.length > 0) {
+                    const audio = alarmSounds[currentAlarmIndex];
+                    if (audio) {
+                        // If we have a custom audio file, play it
+                        audio.currentTime = 0;
+                        audio.play();
+                    } else {
+                        // If no audio file but we have a name, use text-to-speech
+                        const name = alarmNames[currentAlarmIndex];
+                        const utterance = createTextToSpeechAudio(name);
+                        speechSynthesis.speak(utterance);
+                    }
+                } else {
+                    // Fallback to default alarm if no custom sounds
+                    alarmSound.currentTime = 0;
+                    alarmSound.play();
+                }
+            }
+            
+            // Reset timer
+            resetTimer();
+        }, 500); // 500ms delay to allow spacebar sound to play first
     }
     
     // Event listener for spacebar to reset timer
