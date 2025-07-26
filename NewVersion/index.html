@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rummikub Timer</title>
+    <title>Adjustable Timer</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Rummikub Timer</h1>
+        <div id="alarm-name-display" class="alarm-name-display">Timer</div>
+        <h1>Adjustable Timer</h1>
         <div class="timer-display">
             <span id="minutes">01</span>:<span id="seconds">00</span>
         </div>
@@ -17,7 +18,7 @@
         </div>
         <audio id="alarm-sound" preload="auto">
             <!-- <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg"> -->
-            <source src="stop.m4a" type="audio/mpeg">
+            <source src="next.m4a" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
         <audio id="spacebar-sound" preload="auto">
@@ -43,9 +44,16 @@
                     Enable alarm sound
                 </label>
             </div>
-            <div class="control-group custom-sound">
-                <label for="custom-sound">Custom alarm sound:</label>
-                <input type="file" id="custom-sound" accept="audio/*">
+            <div class="control-group">
+                <label>Alarm Sounds:</label>
+                <div class="alarm-sounds-container">
+                    <div class="alarm-sound-item">
+                        <input type="text" class="alarm-sound-name" placeholder="Alarm name">
+                        <input type="file" class="custom-alarm-sound" accept="audio/*">
+                        <button class="remove-sound" disabled>Remove</button>
+                    </div>
+                    <button id="add-alarm-sound">Add Another Sound</button>
+                </div>
             </div>
             <div class="control-group custom-sound">
                 <label for="custom-spacebar-sound">Custom spacebar sound:</label>

@@ -220,9 +220,35 @@ document.addEventListener('DOMContentLoaded', () => {
         alarmSoundsContainer.insertBefore(alarmSoundItem, addAlarmSoundButton);
     }
     
+    // Function to create text-to-speech audio
+    function createTextToSpeechAudio(text) {
+        // Create a new SpeechSynthesisUtterance object
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Configure the utterance
+        utterance.rate = 1.0; // Speech rate (0.1 to 10)
+        utterance.pitch = 1.0; // Speech pitch (0 to 2)
+        utterance.volume = 1.0; // Speech volume (0 to 1)
+        
+        return utterance;
+    }
+    
     // Function to handle alarm sound upload
     function handleAlarmSoundUpload(event, alarmSoundItem) {
         const file = event.target.files[0];
+        
+        // Get the index of this item
+        const index = Array.from(alarmSoundsContainer.children).indexOf(alarmSoundItem);
+        
+        // Get the name input for this item
+        const nameInput = alarmSoundItem.querySelector('.alarm-sound-name');
+        let alarmName = 'Unnamed Alarm';
+        
+        // If name input has a value, use it
+        if (nameInput && nameInput.value) {
+            alarmName = nameInput.value;
+        }
+        
         if (file) {
             // Check if the file is an audio file
             if (file.type.startsWith('audio/')) {
@@ -232,23 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Create an audio element for this sound
                 const audio = new Audio(fileURL);
                 
-                // Get the index of this item
-                const index = Array.from(alarmSoundsContainer.children).indexOf(alarmSoundItem);
-                
-                // Get the name input for this item
-                const nameInput = alarmSoundItem.querySelector('.alarm-sound-name');
-                let alarmName = 'Unnamed Alarm';
-                
-                // If name input has a value, use it
-                if (nameInput && nameInput.value) {
-                    alarmName = nameInput.value;
-                } else if (file.name) {
-                    // Otherwise use the file name without extension
+                // Update file name if needed
+                if (!nameInput.value && file.name) {
+                    // Use the file name without extension
                     alarmName = file.name.replace(/\.[^/.]+$/, '');
                     // Update the name input with the file name
-                    if (nameInput) {
-                        nameInput.value = alarmName;
-                    }
+                    nameInput.value = alarmName;
                 }
                 
                 // Store the audio element and name in the arrays
@@ -283,15 +298,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Please select an audio file.');
                 event.target.value = '';
             }
+        } else if (nameInput && nameInput.value) {
+            // If no file but name is provided, use text-to-speech
+            // Store the name in the arrays
+            if (index !== -1) {
+                // If updating an existing sound
+                if (index < alarmNames.length) {
+                    alarmNames[index] = alarmName;
+                    // Remove any existing audio
+                    if (index < alarmSounds.length) {
+                        alarmSounds[index] = null;
+                    }
+                } else {
+                    // If adding a new name
+                    alarmNames.push(alarmName);
+                    alarmSounds.push(null); // Placeholder for TTS
+                }
+                
+                // If this is the current alarm, update the display
+                if (index === currentAlarmIndex) {
+                    updateAlarmNameDisplay(alarmName);
+                }
+                
+                // Play a preview of the text-to-speech
+                if (soundToggle.checked) {
+                    const utterance = createTextToSpeechAudio(alarmName);
+                    speechSynthesis.speak(utterance);
+                }
+            }
         }
     }
     
     // Function to play the alarm sound
     function playAlarm() {
-        // Only play if sound is enabled and we have alarm sounds
-        if (soundToggle.checked && alarmSounds.length > 0) {
-            // Get the current alarm sound and name
-            const audio = alarmSounds[currentAlarmIndex];
+        // Only play if sound is enabled and we have alarm names
+        if (soundToggle.checked && alarmNames.length > 0) {
+            // Get the current alarm name
             const name = alarmNames[currentAlarmIndex] || 'Unnamed Alarm';
             
             // Update the alarm name display and document title
@@ -303,12 +345,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 alarmNameDisplay.style.color = '#2c3e50';
             }, 1000);
             
-            // Reset to beginning and play
-            audio.currentTime = 0;
-            audio.play();
+            // Get the current alarm sound
+            const audio = alarmSounds[currentAlarmIndex];
+            
+            if (audio) {
+                // If we have a custom audio file, play it
+                audio.currentTime = 0;
+                audio.play();
+            } else {
+                // If no audio file but we have a name, use text-to-speech
+                const utterance = createTextToSpeechAudio(name);
+                speechSynthesis.speak(utterance);
+            }
             
             // Move to the next alarm sound for next time
-            currentAlarmIndex = (currentAlarmIndex + 1) % alarmSounds.length;
+            currentAlarmIndex = (currentAlarmIndex + 1) % alarmNames.length;
         } else if (soundToggle.checked) {
             // Fallback to default alarm if no custom sounds
             alarmSound.currentTime = 0;
@@ -340,14 +391,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Prevent default behavior
         event.preventDefault();
         
-        // Play sound and reset timer
-        playSpacebarSound();
-        resetTimer();
-        
         // Advance to the next alarm sound if we have multiple alarms
-        if (alarmSounds.length > 0) {
+        if (alarmNames.length > 0) {
             // Move to the next alarm sound
-            currentAlarmIndex = (currentAlarmIndex + 1) % alarmSounds.length;
+            currentAlarmIndex = (currentAlarmIndex + 1) % alarmNames.length;
             
             // Update the alarm name display and document title
             if (alarmNames[currentAlarmIndex]) {
@@ -359,6 +406,36 @@ document.addEventListener('DOMContentLoaded', () => {
             // If no custom alarms, set to default
             updateAlarmNameDisplay('Timer');
         }
+        
+        // Play spacebar sound first
+        playSpacebarSound();
+        
+        // Set a short delay before playing the alarm sound
+        setTimeout(() => {
+            // Play the current alarm sound
+            if (soundToggle.checked) {
+                if (alarmNames.length > 0) {
+                    const audio = alarmSounds[currentAlarmIndex];
+                    if (audio) {
+                        // If we have a custom audio file, play it
+                        audio.currentTime = 0;
+                        audio.play();
+                    } else {
+                        // If no audio file but we have a name, use text-to-speech
+                        const name = alarmNames[currentAlarmIndex];
+                        const utterance = createTextToSpeechAudio(name);
+                        speechSynthesis.speak(utterance);
+                    }
+                } else {
+                    // Fallback to default alarm if no custom sounds
+                    alarmSound.currentTime = 0;
+                    alarmSound.play();
+                }
+            }
+            
+            // Reset timer
+            resetTimer();
+        }, 500); // 500ms delay to allow spacebar sound to play first
     }
     
     // Event listener for spacebar to reset timer

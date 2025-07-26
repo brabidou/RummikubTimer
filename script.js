@@ -9,31 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const alarmSound = document.getElementById('alarm-sound');
     const spacebarSound = document.getElementById('spacebar-sound');
     const soundToggle = document.getElementById('sound-toggle');
-    const addAlarmSoundButton = document.getElementById('add-alarm-sound');
+    const customSoundInput = document.getElementById('custom-sound');
     const customSpacebarSoundInput = document.getElementById('custom-spacebar-sound');
-    
-    // Container for alarm sounds
-    const alarmSoundsContainer = document.querySelector('.alarm-sounds-container');
     
     // Timer variables
     let totalSeconds = 60; // Default: 1 minute in seconds
     let initialSeconds = 60; // Store the initial timer value for resets
     let timerInterval;
     let isPaused = false; // Track if timer is paused
-    
-    // Alarm sound variables
-    let alarmSounds = []; // Array to store custom alarm sounds
-    let alarmNames = []; // Array to store alarm sound names
-    let currentAlarmIndex = 0; // Index of the current alarm sound
-    
-    // Get the alarm name display element
-    const alarmNameDisplay = document.getElementById('alarm-name-display');
-    
-    // Helper function to update alarm name display and document title
-    function updateAlarmNameDisplay(name) {
-        alarmNameDisplay.textContent = name;
-        document.title = name + ' - Timer';
-    }
     
     // Function to update the timer display
     function updateTimerDisplay() {
@@ -133,238 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
     
-    // Function to add a new alarm sound input
-    function addAlarmSoundInput() {
-        // Create a new alarm sound item
-        const alarmSoundItem = document.createElement('div');
-        alarmSoundItem.className = 'alarm-sound-item';
-        
-        // Create name input
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.className = 'alarm-sound-name';
-        nameInput.placeholder = 'Alarm name';
-        
-        // Create file input
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.className = 'custom-alarm-sound';
-        fileInput.accept = 'audio/*';
-        
-        // Create remove button
-        const removeButton = document.createElement('button');
-        removeButton.className = 'remove-sound';
-        removeButton.textContent = 'Remove';
-        removeButton.disabled = true;
-        
-        // Add event listener to name input
-        nameInput.addEventListener('input', (event) => {
-            const index = Array.from(alarmSoundsContainer.children).indexOf(alarmSoundItem);
-            if (index !== -1) {
-                // Update the name in the array
-                alarmNames[index] = event.target.value || 'Unnamed Alarm';
-                
-                // If this is the current alarm, update the display
-                if (index === currentAlarmIndex && alarmSounds[index]) {
-                    updateAlarmNameDisplay(alarmNames[index]);
-                }
-            }
-        });
-        
-        // Add event listener to file input
-        fileInput.addEventListener('change', (event) => {
-            handleAlarmSoundUpload(event, alarmSoundItem);
-            // Enable remove button once a file is selected
-            removeButton.disabled = false;
-        });
-        
-        // Add event listener to remove button
-        removeButton.addEventListener('click', () => {
-            // Get the index of this item
-            const index = Array.from(alarmSoundsContainer.children).indexOf(alarmSoundItem);
-            
-            // Remove the sound and name from the arrays
-            if (index !== -1) {
-                if (index < alarmSounds.length) {
-                    alarmSounds.splice(index, 1);
-                }
-                if (index < alarmNames.length) {
-                    alarmNames.splice(index, 1);
-                }
-            }
-            
-            // Remove the item from the DOM
-            alarmSoundItem.remove();
-            
-            // Update current index if needed
-            if (alarmSounds.length > 0) {
-                currentAlarmIndex = currentAlarmIndex % alarmSounds.length;
-                // Update the display with the current alarm name
-                if (alarmNames[currentAlarmIndex]) {
-                    updateAlarmNameDisplay(alarmNames[currentAlarmIndex]);
-                } else {
-                    updateAlarmNameDisplay('Timer');
-                }
-            } else {
-                currentAlarmIndex = 0;
-                updateAlarmNameDisplay('Timer');
-            }
-        });
-        
-        // Append elements to the item
-        alarmSoundItem.appendChild(nameInput);
-        alarmSoundItem.appendChild(fileInput);
-        alarmSoundItem.appendChild(removeButton);
-        
-        // Insert the new item before the "Add Another Sound" button
-        alarmSoundsContainer.insertBefore(alarmSoundItem, addAlarmSoundButton);
-    }
-    
-    // Function to create text-to-speech audio
-    function createTextToSpeechAudio(text) {
-        // Create a new SpeechSynthesisUtterance object
-        const utterance = new SpeechSynthesisUtterance(text);
-        
-        // Configure the utterance
-        utterance.rate = 1.0; // Speech rate (0.1 to 10)
-        utterance.pitch = 1.0; // Speech pitch (0 to 2)
-        utterance.volume = 1.0; // Speech volume (0 to 1)
-        
-        return utterance;
-    }
-    
-    // Function to handle alarm sound upload
-    function handleAlarmSoundUpload(event, alarmSoundItem) {
-        const file = event.target.files[0];
-        
-        // Get the index of this item
-        const index = Array.from(alarmSoundsContainer.children).indexOf(alarmSoundItem);
-        
-        // Get the name input for this item
-        const nameInput = alarmSoundItem.querySelector('.alarm-sound-name');
-        let alarmName = 'Unnamed Alarm';
-        
-        // If name input has a value, use it
-        if (nameInput && nameInput.value) {
-            alarmName = nameInput.value;
-        }
-        
-        if (file) {
-            // Check if the file is an audio file
-            if (file.type.startsWith('audio/')) {
-                // Create a URL for the uploaded file
-                const fileURL = URL.createObjectURL(file);
-                
-                // Create an audio element for this sound
-                const audio = new Audio(fileURL);
-                
-                // Update file name if needed
-                if (!nameInput.value && file.name) {
-                    // Use the file name without extension
-                    alarmName = file.name.replace(/\.[^/.]+$/, '');
-                    // Update the name input with the file name
-                    nameInput.value = alarmName;
-                }
-                
-                // Store the audio element and name in the arrays
-                if (index !== -1) {
-                    // If updating an existing sound
-                    if (index < alarmSounds.length) {
-                        alarmSounds[index] = audio;
-                        alarmNames[index] = alarmName;
-                    } else {
-                        // If adding a new sound
-                        alarmSounds.push(audio);
-                        alarmNames.push(alarmName);
-                    }
-                    
-                    // If this is the current alarm, update the display
-                    if (index === currentAlarmIndex) {
-                        updateAlarmNameDisplay(alarmName);
-                    }
-                }
-                
-                // Play a preview
-                if (soundToggle.checked) {
-                    audio.currentTime = 0;
-                    audio.play();
-                    // Stop after 1 second
-                    setTimeout(() => {
-                        audio.pause();
-                        audio.currentTime = 0;
-                    }, 1000);
-                }
-            } else {
-                alert('Please select an audio file.');
-                event.target.value = '';
-            }
-        } else if (nameInput && nameInput.value) {
-            // If no file but name is provided, use text-to-speech
-            // Store the name in the arrays
-            if (index !== -1) {
-                // If updating an existing sound
-                if (index < alarmNames.length) {
-                    alarmNames[index] = alarmName;
-                    // Remove any existing audio
-                    if (index < alarmSounds.length) {
-                        alarmSounds[index] = null;
-                    }
-                } else {
-                    // If adding a new name
-                    alarmNames.push(alarmName);
-                    alarmSounds.push(null); // Placeholder for TTS
-                }
-                
-                // If this is the current alarm, update the display
-                if (index === currentAlarmIndex) {
-                    updateAlarmNameDisplay(alarmName);
-                }
-                
-                // Play a preview of the text-to-speech
-                if (soundToggle.checked) {
-                    const utterance = createTextToSpeechAudio(alarmName);
-                    speechSynthesis.speak(utterance);
-                }
-            }
-        }
-    }
-    
     // Function to play the alarm sound
     function playAlarm() {
-        // Only play if sound is enabled and we have alarm names
-        if (soundToggle.checked && alarmNames.length > 0) {
-            // Get the current alarm name
-            const name = alarmNames[currentAlarmIndex] || 'Unnamed Alarm';
-            
-            // Update the alarm name display and document title
-            updateAlarmNameDisplay(name);
-            
-            // Add a highlight effect to the name display
-            alarmNameDisplay.style.color = '#e74c3c';
-            setTimeout(() => {
-                alarmNameDisplay.style.color = '#2c3e50';
-            }, 1000);
-            
-            // Get the current alarm sound
-            const audio = alarmSounds[currentAlarmIndex];
-            
-            if (audio) {
-                // If we have a custom audio file, play it
-                audio.currentTime = 0;
-                audio.play();
-            } else {
-                // If no audio file but we have a name, use text-to-speech
-                const utterance = createTextToSpeechAudio(name);
-                speechSynthesis.speak(utterance);
-            }
-            
-            // Move to the next alarm sound for next time
-            currentAlarmIndex = (currentAlarmIndex + 1) % alarmNames.length;
-        } else if (soundToggle.checked) {
-            // Fallback to default alarm if no custom sounds
+        // Only play if sound is enabled
+        if (soundToggle.checked) {
+            // Reset the audio to the beginning
             alarmSound.currentTime = 0;
+            // Play the sound
             alarmSound.play();
-            updateAlarmNameDisplay('Default Alarm');
         }
     }
     
@@ -391,51 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Prevent default behavior
         event.preventDefault();
         
-        // Advance to the next alarm sound if we have multiple alarms
-        if (alarmNames.length > 0) {
-            // Move to the next alarm sound
-            currentAlarmIndex = (currentAlarmIndex + 1) % alarmNames.length;
-            
-            // Update the alarm name display and document title
-            if (alarmNames[currentAlarmIndex]) {
-                updateAlarmNameDisplay(alarmNames[currentAlarmIndex]);
-            } else {
-                updateAlarmNameDisplay('Unnamed Alarm');
-            }
-        } else {
-            // If no custom alarms, set to default
-            updateAlarmNameDisplay('Timer');
-        }
-        
-        // Play spacebar sound first
+        // Play sound and reset timer
         playSpacebarSound();
-        
-        // Set a short delay before playing the alarm sound
-        setTimeout(() => {
-            // Play the current alarm sound
-            if (soundToggle.checked) {
-                if (alarmNames.length > 0) {
-                    const audio = alarmSounds[currentAlarmIndex];
-                    if (audio) {
-                        // If we have a custom audio file, play it
-                        audio.currentTime = 0;
-                        audio.play();
-                    } else {
-                        // If no audio file but we have a name, use text-to-speech
-                        const name = alarmNames[currentAlarmIndex];
-                        const utterance = createTextToSpeechAudio(name);
-                        speechSynthesis.speak(utterance);
-                    }
-                } else {
-                    // Fallback to default alarm if no custom sounds
-                    alarmSound.currentTime = 0;
-                    alarmSound.play();
-                }
-            }
-            
-            // Reset timer
-            resetTimer();
-        }, 500); // 500ms delay to allow spacebar sound to play first
+        resetTimer();
     }
     
     // Event listener for spacebar to reset timer
@@ -463,46 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for pause button
     pauseButton.addEventListener('click', togglePause);
     
-    // Event listener for custom spacebar sound file upload
+    // Event listener for custom sound file upload
+    customSoundInput.addEventListener('change', (event) => handleCustomSound(event, alarmSound));
     customSpacebarSoundInput.addEventListener('change', (event) => handleCustomSound(event, spacebarSound));
-    
-    // Event listener for add alarm sound button
-    addAlarmSoundButton.addEventListener('click', addAlarmSoundInput);
-    
-    // Initialize the first alarm sound input
-    const firstAlarmInput = document.querySelector('.custom-alarm-sound');
-    const firstNameInput = document.querySelector('.alarm-sound-name');
-    
-    if (firstAlarmInput) {
-        // Add event listener for file input
-        firstAlarmInput.addEventListener('change', (event) => {
-            const alarmSoundItem = event.target.closest('.alarm-sound-item');
-            handleAlarmSoundUpload(event, alarmSoundItem);
-            // Enable the remove button
-            const removeButton = alarmSoundItem.querySelector('.remove-sound');
-            if (removeButton) {
-                removeButton.disabled = false;
-            }
-        });
-    }
-    
-    if (firstNameInput) {
-        // Add event listener for name input
-        firstNameInput.addEventListener('input', (event) => {
-            const alarmSoundItem = event.target.closest('.alarm-sound-item');
-            const index = Array.from(alarmSoundsContainer.children).indexOf(alarmSoundItem);
-            
-            if (index !== -1) {
-                // Update the name in the array
-                alarmNames[index] = event.target.value || 'Unnamed Alarm';
-                
-                // If this is the current alarm, update the display
-                if (index === currentAlarmIndex && alarmSounds[index]) {
-                    updateAlarmNameDisplay(alarmNames[index]);
-                }
-            }
-        });
-    }
     
     // Function to handle custom sound file upload
     function handleCustomSound(event, audioElement) {
@@ -537,9 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    
-    // Initialize document title
-    document.title = 'Adjustable Timer';
     
     // Start the timer when the page loads
     startTimer();
